@@ -4,6 +4,10 @@ A Go port of the [C++ ANSI Art rendering library](https://github.com/mafik/ansi-
 
 ANSI Art Paintbrush allows you to convert images into colorful ASCII art using ANSI escape codes. It provides a simple interface for loading images, rendering them as ASCII art, and outputting the result in various formats.
 
+## Example
+
+![Example Output](docs/norman.png)
+
 ## Features
 
 - Convert images to ASCII art with ANSI color codes
