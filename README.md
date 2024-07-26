@@ -95,12 +95,12 @@ type AnsiArtInterface interface {
     ClearForbiddenCharacters()
     GetForbiddenCharacters() []string
     IsForbiddenCharacter(string) bool
-	SetAspectRatio(float64)
-	GetAspectRatio() float64
-	SetGlyphDimensions(width, height int)
-	GetGlyphDimensions() (width, height int)
-	SetRuneLimits(start, end int)
-	GetRuneLimits() (start, end int)
+    SetAspectRatio(float64)
+    GetAspectRatio() float64
+    SetGlyphDimensions(width, height int)
+    GetGlyphDimensions() (width, height int)
+    SetRuneLimits(start, end int)
+    GetRuneLimits() (start, end int)
 }
 ```
 
@@ -114,4 +114,4 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## Acknowledgements
 
-This project is a Go port of the original [C++ ANSI Art library](https://github.com/mafik/ansi-art) created by Marek Rogalski. I am very grateful for their work, which served as the foundation for this Go implementation.
+This project is a Go fork of the original [C++ ANSI Art library](https://github.com/mafik/ansi-art) created by Marek Rogalski. I am very grateful for their work, which served as the foundation for this Go implementation.
