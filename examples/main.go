@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	_ "image/png"
 	"time"
 
 	paintbrush "github.com/jordanella/go-ansi-paintbrush"

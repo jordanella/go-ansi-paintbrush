@@ -3,7 +3,6 @@ package paintbrush
 import (
 	"fmt"
 	"image"
-	_ "image/png" // PNG Support
 	"math"
 	"os"
 )

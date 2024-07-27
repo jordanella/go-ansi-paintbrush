@@ -24,13 +24,14 @@ ANSI Paintbrush allows you to convert images into colorful ASCII art using ANSI 
 go get github.com/jordanella/go-ansi-paintbrush
 ```
 
-## Basic Usage
+## Quickstart
 
 ```
 package main
 
 import (
     "fmt"
+	_ "image/png"
 
     "github.com/jordanella/go-ansi-paintbrush"
 )
@@ -53,6 +54,16 @@ func main() {
     fmt.Printf("\r%s", aa.GetResultRaw())
 }
 ```
+
+Note that it is important to include the appropriate file type support necessary for your project.
+
+```
+import (
+    _ "image/png" // PNG support example
+)
+
+```
+
 
 ## Planned Features
 
