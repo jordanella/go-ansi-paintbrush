@@ -1,7 +1,6 @@
 package paintbrush
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -25,8 +24,7 @@ func (aa *AnsiArt) processResults(results []TaskResult, height int) {
 		for charX := 0; charX < aa.width; charX++ {
 			result := resultIdx[charY][charX]
 			if result == nil || result.Glyph == nil {
-				fmt.Printf("Warning: No result for position (%d, %d)\n", charX, charY)
-				sb.WriteString(" ")
+				sb.WriteString(lastBg + lastFg + " ")
 				continue
 			}
 
