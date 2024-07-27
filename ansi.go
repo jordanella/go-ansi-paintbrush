@@ -2,12 +2,15 @@ package paintbrush
 
 import (
 	"image"
+	"os"
 	"sync"
 )
 
 type AnsiArtInterface interface {
-	LoadTTF(data []byte) error
-	LoadImage(img image.Image)
+	LoadFont(path string) error
+	SetFont(data []byte) error
+	LoadImage(path string) error
+	SetImage(img image.Image)
 	Render()
 	SetThreads(int)
 	StartRender()
@@ -35,7 +38,7 @@ type AnsiArt struct {
 	Font   Font
 	Image  image.Image
 	width  int
-	Height int
+	height int
 
 	resultRaw        string
 	resultRGBABytes  []byte
@@ -64,6 +67,7 @@ func New() AnsiArtInterface {
 		glyphHeight:         14,
 		runeStart:           32,
 		runeLimit:           95,
+		width:               40,
 		forbiddenCharacters: make(map[string]struct{}),
 		workerCount:         4,
 	}
@@ -71,6 +75,22 @@ func New() AnsiArtInterface {
 
 func (aa *AnsiArt) SetWidth(width int) {
 	aa.width = width
+}
+
+func (aa *AnsiArt) SetHeight(height int) {
+	aa.height = height
+}
+
+func (aa *AnsiArt) LoadFont(path string) error {
+	fontData, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	err = aa.SetFont(fontData)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (aa *AnsiArt) SetThreads(threads int) {

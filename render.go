@@ -28,6 +28,13 @@ func (aa *AnsiArt) renderWorker(wg *sync.WaitGroup, taskChan <-chan Task, result
 }
 
 func (aa *AnsiArt) Render() {
+	if len(aa.Font.Glyphs) == 0 {
+		err := aa.LoadFont(FiraMonoRegular)
+		if err != nil {
+			return
+		}
+	}
+
 	aa.resultRaw = ""
 	aa.resultRGBABytes = nil
 	aa.resultC = ""
