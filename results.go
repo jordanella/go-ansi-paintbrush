@@ -21,12 +21,11 @@ func (aa *AnsiArt) processResults(results []TaskResult, height int) {
 	lastBg := "\033[0m" // Reset background
 	lastFg := "\033[0m" // Reset foreground
 
-	var result *TaskResult
 	for charY := 0; charY < height; charY++ {
 		for charX := 0; charX < aa.width; charX++ {
-			result = resultIdx[charY][charX]
+			result := resultIdx[charY][charX]
 			if result == nil || result.Glyph == nil {
-				fmt.Println("") // TODO: Correct this workaround.
+				fmt.Printf("Warning: No result for position (%d, %d)\n", charX, charY)
 				sb.WriteString(" ")
 				continue
 			}
@@ -49,11 +48,6 @@ func (aa *AnsiArt) processResults(results []TaskResult, height int) {
 			}
 			sb.WriteString(result.Glyph.UTF8)
 		}
-
-		if lastFg == "\033[0m" {
-			sb.WriteString(result.Glyph.UTF8) // TODO: Correct this workaround.
-		}
-
 		// Reset colors at the end of each line
 		sb.WriteString("\033[0m\n")
 		lastBg = "\033[0m"
