@@ -54,7 +54,7 @@ func (aa *AnsiArt) processResults(results []TaskResult, height int) {
 
 	// Remove empty newlines at the end
 	aa.resultRaw = sb.String()
-	for strings.HasSuffix(aa.resultRaw, "\n\n") {
+	for strings.HasSuffix(aa.resultRaw, "\n") {
 		aa.resultRaw = aa.resultRaw[:len(aa.resultRaw)-1]
 	}
 
