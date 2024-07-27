@@ -51,8 +51,11 @@ func main() {
 	// Set the desired width of the output
 	aa.SetWidth(150)
 
-	// Start the rendering process (threads)
-	aa.StartRender(10)
+	// Set threads to 10 (default is 4)
+	aa.SetThreads(10)
+
+	// Start the rendering process
+	aa.StartRender()
 
 	for aa.GetRenderProgress() < 1.0 {
 		fmt.Printf("Rendering progress: %.2f%%\r", aa.GetRenderProgress()*100)

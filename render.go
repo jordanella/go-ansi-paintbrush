@@ -5,8 +5,7 @@ import (
 	"sync"
 )
 
-func (aa *AnsiArt) StartRender(nThreads int) {
-	aa.workerCount = nThreads
+func (aa *AnsiArt) StartRender() {
 	go func() {
 		aa.Render()
 		aa.progress = 1

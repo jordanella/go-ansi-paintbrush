@@ -9,7 +9,8 @@ type AnsiArtInterface interface {
 	LoadTTF(data []byte) error
 	LoadImage(img image.Image)
 	Render()
-	StartRender(nThreads int)
+	SetThreads(int)
+	StartRender()
 	GetRenderProgress() float32
 	GetResultRaw() string
 	GetResultC() string
@@ -64,11 +65,16 @@ func New() AnsiArtInterface {
 		runeStart:           32,
 		runeLimit:           95,
 		forbiddenCharacters: make(map[string]struct{}),
+		workerCount:         4,
 	}
 }
 
 func (aa *AnsiArt) SetWidth(width int) {
 	aa.width = width
+}
+
+func (aa *AnsiArt) SetThreads(threads int) {
+	aa.workerCount = threads
 }
 
 func (aa *AnsiArt) GetResultBash() string {
