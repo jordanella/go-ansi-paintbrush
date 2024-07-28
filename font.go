@@ -1,6 +1,7 @@
 package paintbrush
 
 import (
+	"embed"
 	"fmt"
 	"image"
 
@@ -9,8 +10,13 @@ import (
 	"golang.org/x/image/math/fixed"
 )
 
-var FiraMonoRegular = "assets/FiraMono-Regular.ttf"
-var FiraMonoBold = "assets/FiraMono-Bold.ttf"
+//go:embed assets/FiraMono-Regular.ttf assets/FiraMono-Bold.ttf
+var EmbeddedFonts embed.FS
+
+var (
+	FiraMonoRegular = "assets/FiraMono-Regular.ttf"
+	FiraMonoBold    = "assets/FiraMono-Bold.ttf"
+)
 
 type Font struct {
 	GlyphHeight int
