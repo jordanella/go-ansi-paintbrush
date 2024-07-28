@@ -41,7 +41,6 @@ func New() *Canvas {
 		GlyphHeight:         14,
 		RuneStart:           32,
 		RuneLimit:           95,
-		Width:               40,
 		Threads:             4,
 		ForbiddenCharacters: make(map[rune]struct{}),
 		Weights:             make(map[rune]float64),

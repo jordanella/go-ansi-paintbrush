@@ -47,26 +47,26 @@ func (c *Canvas) Paint() {
 	c.ResultC = ""
 	c.ResultBash = ""
 
-	fHeight := float64(int(float64(c.Image.Bounds().Dy()) * float64(c.Width) / float64(c.Image.Bounds().Dx()) / c.Font.Aspect))
-	imgCharWidth := float64(int((float64(c.Image.Bounds().Dx())/float64(c.Width))*float64(c.GlyphWidth))) / float64(c.GlyphWidth)
-	imgCharHeight := float64(c.Image.Bounds().Dy()) / fHeight
-	height := int(fHeight)
+	width, height := c.calculateDimensions(c.Image.Bounds().Dx(), c.Image.Bounds().Dx())
 
-	c.ResultRGBAWidth = c.Width * c.Font.GlyphWidth
+	imgCharWidth := float64(int((float64(c.Image.Bounds().Dx())/float64(width))*float64(c.GlyphWidth))) / float64(c.GlyphWidth)
+	imgCharHeight := float64(c.Image.Bounds().Dy()) / float64(height)
+
+	c.ResultRGBAWidth = width * c.Font.GlyphWidth
 	c.ResultRGBAHeight = height * c.Font.GlyphHeight
 	c.ResultRGBABytes = make([]byte, c.ResultRGBAWidth*c.ResultRGBAHeight*4)
 
-	tasks := make([]Task, 0, c.Width*height)
+	tasks := make([]Task, 0, width*height)
 	for charY := 0; charY < height; charY++ {
-		for charX := 0; charX < c.Width; charX++ {
+		for charX := 0; charX < width; charX++ {
 			tasks = append(tasks, Task{CharX: charX, CharY: charY})
 		}
 	}
 
 	sort.Slice(tasks, func(i, j int) bool {
 		distFunc := func(t Task) float64 {
-			dx := float64(t.CharX) - float64(c.Width)/2
-			dy := float64(t.CharY) - fHeight/2
+			dx := float64(t.CharX) - float64(width)/2
+			dy := float64(t.CharY) - float64(height)/2
 			return dx*dx/c.Font.Aspect + dy*dy*c.Font.Aspect
 		}
 		di, dj := distFunc(tasks[i]), distFunc(tasks[j])
@@ -102,7 +102,7 @@ func (c *Canvas) Paint() {
 	go func() {
 		for i := 0; i < len(tasks); i++ {
 			result := <-resultChan
-			taskResults[result.CharY*c.Width+result.CharX] = result
+			taskResults[result.CharY*width+result.CharX] = result
 			c.Progress = float32(i+1) / float32(len(tasks))
 		}
 		close(resultChan)
@@ -111,5 +111,39 @@ func (c *Canvas) Paint() {
 	wg.Wait()
 
 	// Process results
-	c.processResults(taskResults, height)
+	c.processResults(taskResults, width, height)
+}
+
+func (c *Canvas) calculateDimensions(imageX, imageY int) (width int, height int) {
+	// Use local variables for calculations
+	width = c.Width
+	height = c.Height
+
+	// Set default values if both width and height are 0
+	if width == 0 && height == 0 {
+		width, height = c.defaultDimensions()
+	}
+
+	aspectRatio := float64(imageX) / float64(imageY) * c.Font.Aspect
+
+	if width == 0 {
+		width = int(float64(height) * aspectRatio)
+	} else if height == 0 {
+		height = int(float64(width) / aspectRatio)
+	} else {
+		constrainedHeight := int(float64(width) / aspectRatio)
+		constrainedWidth := int(float64(height) * aspectRatio)
+
+		if constrainedHeight <= height {
+			height = constrainedHeight
+		} else {
+			width = constrainedWidth
+		}
+	}
+
+	return width, height
+}
+
+func (c *Canvas) defaultDimensions() (int, int) {
+	return 40, 0
 }

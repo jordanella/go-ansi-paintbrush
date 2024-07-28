@@ -5,11 +5,11 @@ import (
 	"sync"
 )
 
-func (c *Canvas) processResults(results []TaskResult, height int) {
+func (c *Canvas) processResults(results []TaskResult, width, height int) {
 
 	resultIdx := make([][]*TaskResult, height)
 	for i := range resultIdx {
-		resultIdx[i] = make([]*TaskResult, c.Width)
+		resultIdx[i] = make([]*TaskResult, width)
 	}
 
 	var wg sync.WaitGroup
@@ -28,7 +28,7 @@ func (c *Canvas) processResults(results []TaskResult, height int) {
 	lastFg := "\033[0m" // Reset foreground
 
 	for charY := 0; charY < height; charY++ {
-		for charX := 0; charX < c.Width; charX++ {
+		for charX := 0; charX < width; charX++ {
 			result := resultIdx[charY][charX]
 			if result == nil {
 				sb.WriteString(" ")

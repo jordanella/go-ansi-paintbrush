@@ -10,7 +10,7 @@ ANSI Paintbrush allows you to convert images into colorful ASCII art using ANSI 
 
 - Convert images to ASCII art with ANSI color codes
 - Load custom TTF fonts for character selection
-- Adjustable output width
+- Adjustable output width and height with constraint handling
 - Multi-threaded rendering for improved performance
 - Multiple output formats (raw string, C-style string, Bash command)
 - Weighting and adding specific characters
@@ -19,8 +19,7 @@ ANSI Paintbrush allows you to convert images into colorful ASCII art using ANSI 
 ### Future Plans
 
 I'm always looking to improve ANSI Paintbrush. Some features being considering for future releases include:
-- Configurable height constraint
-- Advanced sizing options (stretch, bottleneck, crop, etc.)
+- Constraint behaviour options (stretch, center, etc.)
 - Command-line argument handling
 - Rendering the result to file
 
