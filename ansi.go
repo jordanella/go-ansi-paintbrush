@@ -2,166 +2,168 @@ package paintbrush
 
 import (
 	"image"
-	"os"
 	"sync"
 )
 
-type AnsiArtInterface interface {
-	LoadFont(path string) error
-	SetFont(data []byte) error
-	LoadImage(path string) error
-	SetImage(img image.Image)
-	Render()
-	SetThreads(int)
-	StartRender()
-	GetRenderProgress() float32
-	GetResultRaw() string
-	GetResultC() string
-	GetResultBash() string
-	GetResultRGBABytes() []byte
-	GetResultRGBADimensions() (width, height int)
-	SetWidth(int)
-	AddForbiddenCharacter(string)
-	RemoveForbiddenCharacter(string)
-	ClearForbiddenCharacters()
-	GetForbiddenCharacters() []string
-	IsForbiddenCharacter(string) bool
-	SetAspectRatio(float64)
-	GetAspectRatio() float64
-	SetGlyphDimensions(width, height int)
-	GetGlyphDimensions() (width, height int)
-	SetRuneLimits(start, end int)
-	GetRuneLimits() (start, end int)
+type Canvas struct {
+	// Input and Rendering Configuration
+	Font                Font              // Font used for rendering
+	Image               image.Image       // Input image to be processed
+	Width               int               // Output width in characters
+	Height              int               // Output height in characters
+	AspectRatio         float64           // Aspect ratio for output
+	GlyphWidth          int               // Width of each glyph
+	GlyphHeight         int               // Height of each glyph
+	RuneStart           int               // Starting Unicode code point for character selection
+	RuneLimit           int               // Ending Unicode code point for character selection
+	Threads             int               // Number of threads for parallel processing
+	ForbiddenCharacters map[rune]struct{} // Characters to exclude from rendering
+	Weights             map[rune]float64  // Custom weights for character selection
+
+	// Output Results
+	Result           string // Raw output string
+	ResultC          string // C-style string output
+	ResultBash       string // Bash command string output
+	ResultRGBABytes  []byte // RGBA byte slice of the rendered image
+	ResultRGBAWidth  int    // Width of the RGBA output
+	ResultRGBAHeight int    // Height of the RGBA output
+
+	// Internal State
+	Progress float32    // Current progress of rendering (0.0 to 1.0)
+	mu       sync.Mutex // Mutex for thread-safe operations
 }
 
-type AnsiArt struct {
-	Font   Font
-	Image  image.Image
-	width  int
-	height int
-
-	resultRaw        string
-	resultRGBABytes  []byte
-	resultRGBAWidth  int
-	resultRGBAHeight int
-	resultC          string
-	resultBash       string
-
-	workerCount int
-	progress    float32
-	mu          sync.Mutex
-
-	forbiddenCharacters map[string]struct{}
-
-	aspectRatio float64
-	glyphWidth  int
-	glyphHeight int
-	runeStart   int
-	runeLimit   int
-}
-
-func New() AnsiArtInterface {
-	return &AnsiArt{
-		aspectRatio:         1,
-		glyphWidth:          7,
-		glyphHeight:         14,
-		runeStart:           32,
-		runeLimit:           95,
-		width:               40,
-		forbiddenCharacters: make(map[string]struct{}),
-		workerCount:         4,
+// New creates and returns a new Canvas instance with default settings.
+func New() *Canvas {
+	return &Canvas{
+		AspectRatio:         1,
+		GlyphWidth:          7,
+		GlyphHeight:         14,
+		RuneStart:           32,
+		RuneLimit:           95,
+		Width:               40,
+		Threads:             4,
+		ForbiddenCharacters: make(map[rune]struct{}),
+		Weights:             make(map[rune]float64),
 	}
 }
 
-func (aa *AnsiArt) SetWidth(width int) {
-	aa.width = width
+// SetWidth sets the width of the output in characters.
+func (c *Canvas) SetWidth(width int) {
+	c.Width = width
 }
 
-func (aa *AnsiArt) SetHeight(height int) {
-	aa.height = height
+// SetHeight sets the height of the output in characters.
+func (c *Canvas) SetHeight(height int) {
+	c.Height = height
 }
 
-func (aa *AnsiArt) LoadFont(path string) error {
-	fontData, err := os.ReadFile(path)
-	if err != nil {
-		return err
-	}
-	err = aa.SetFont(fontData)
-	if err != nil {
-		return err
-	}
-	return nil
+// GetImage returns the currently set image.
+func (c *Canvas) GetImage() image.Image {
+	return c.Image
 }
 
-func (aa *AnsiArt) SetThreads(threads int) {
-	aa.workerCount = threads
+// SetThreads sets the number of threads to use for rendering.
+func (c *Canvas) SetThreads(threads int) {
+	c.Threads = threads
 }
 
-func (aa *AnsiArt) GetResultBash() string {
-	return aa.resultBash
-}
-func (aa *AnsiArt) GetResultRaw() string {
-	return aa.resultRaw
+// GetResult returns the raw result string without any formatting.
+func (c *Canvas) GetResult() string {
+	return c.Result
 }
 
-func (aa *AnsiArt) GetResultC() string {
-	return aa.resultC
+// GetResultC returns the result as a C-style string.
+func (c *Canvas) GetResultC() string {
+	return c.ResultC
 }
 
-func (aa *AnsiArt) GetResultRGBABytes() []byte {
-	return aa.resultRGBABytes
+// GetResultBash returns the result as a Bash command string.
+func (c *Canvas) GetResultBash() string {
+	return c.ResultBash
 }
 
-func (aa *AnsiArt) GetResultRGBADimensions() (width, height int) {
-	return aa.resultRGBAWidth, aa.resultRGBAHeight
-}
-func (aa *AnsiArt) AddForbiddenCharacter(char string) {
-	aa.forbiddenCharacters[char] = struct{}{}
+// GetResultRGBABytes returns the result as RGBA bytes.
+func (c *Canvas) GetResultRGBABytes() []byte {
+	return c.ResultRGBABytes
 }
 
-func (aa *AnsiArt) RemoveForbiddenCharacter(char string) {
-	delete(aa.forbiddenCharacters, char)
+// GetResultRGBADimensions returns the width and height of the RGBA result.
+func (c *Canvas) GetResultRGBADimensions() (width, height int) {
+	return c.ResultRGBAWidth, c.ResultRGBAHeight
 }
 
-func (aa *AnsiArt) ClearForbiddenCharacters() {
-	aa.forbiddenCharacters = make(map[string]struct{})
+// AddForbiddenCharacter adds a character to the list of forbidden characters.
+func (c *Canvas) AddForbiddenCharacter(char rune) {
+	c.ForbiddenCharacters[char] = struct{}{}
 }
 
-func (aa *AnsiArt) GetForbiddenCharacters() []string {
-	chars := make([]string, 0, len(aa.forbiddenCharacters))
-	for char := range aa.forbiddenCharacters {
+// RemoveForbiddenCharacter removes a character from the list of forbidden characters.
+func (c *Canvas) RemoveForbiddenCharacter(char rune) {
+	delete(c.ForbiddenCharacters, char)
+}
+
+// ClearForbiddenCharacters removes all characters from the list of forbidden characters.
+func (c *Canvas) ClearForbiddenCharacters() {
+	c.ForbiddenCharacters = make(map[rune]struct{})
+}
+
+// GetForbiddenCharacters returns a slice of all forbidden characters.
+func (c *Canvas) GetForbiddenCharacters() []rune {
+	chars := make([]rune, 0, len(c.ForbiddenCharacters))
+	for char := range c.ForbiddenCharacters {
 		chars = append(chars, char)
 	}
 	return chars
 }
 
-func (aa *AnsiArt) IsForbiddenCharacter(char string) bool {
-	_, forbidden := aa.forbiddenCharacters[char]
+// IsForbiddenCharacter checks if a character is in the list of forbidden characters.
+func (c *Canvas) IsForbiddenCharacter(char rune) bool {
+	_, forbidden := c.ForbiddenCharacters[char]
 	return forbidden
 }
 
-func (aa *AnsiArt) SetAspectRatio(ratio float64) {
-	aa.aspectRatio = ratio
+// SetAspectRatio sets the aspect ratio for the output.
+func (c *Canvas) SetAspectRatio(ratio float64) {
+	c.AspectRatio = ratio
 }
 
-func (aa *AnsiArt) GetAspectRatio() float64 {
-	return aa.aspectRatio
+// GetAspectRatio returns the current aspect ratio.
+func (c *Canvas) GetAspectRatio() float64 {
+	return c.AspectRatio
 }
 
-func (aa *AnsiArt) SetGlyphDimensions(width, height int) {
-	aa.glyphWidth = width
-	aa.glyphHeight = height
+// SetGlyphDimensions sets the width and height of glyphs.
+func (c *Canvas) SetGlyphDimensions(width, height int) {
+	c.GlyphWidth = width
+	c.GlyphHeight = height
 }
 
-func (aa *AnsiArt) GetGlyphDimensions() (width, height int) {
-	return aa.glyphWidth, aa.glyphHeight
+// GetGlyphDimensions returns the current width and height of glyphs.
+func (c *Canvas) GetGlyphDimensions() (width, height int) {
+	return c.GlyphWidth, c.GlyphHeight
 }
 
-func (aa *AnsiArt) SetRuneLimits(start, end int) {
-	aa.runeStart = start
-	aa.runeLimit = end
+// SetRuneLimits sets the start and end rune limits for character selection.
+func (c *Canvas) SetRuneLimits(start, end int) {
+	c.RuneStart = start
+	c.RuneLimit = end
 }
 
-func (aa *AnsiArt) GetRuneLimits() (int, int) {
-	return aa.runeStart, aa.runeLimit
+// GetRuneLimits returns the current start and end rune limits.
+func (c *Canvas) GetRuneLimits() (int, int) {
+	return c.RuneStart, c.RuneLimit
+}
+
+// SetWeights sets the weights for characters used in rendering.
+func (c *Canvas) SetWeights(weights map[rune]float64) {
+	c.Weights = weights
+}
+
+// AddWeights adds the provided weights to the existing weight map.
+// If a character already has a weight, it will be updated with the new value.
+func (c *Canvas) AddWeights(weights map[rune]float64) {
+	for char, weight := range weights {
+		c.Weights[char] = weight
+	}
 }

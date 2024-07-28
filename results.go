@@ -5,11 +5,11 @@ import (
 	"sync"
 )
 
-func (aa *AnsiArt) processResults(results []TaskResult, height int) {
+func (c *Canvas) processResults(results []TaskResult, height int) {
 
 	resultIdx := make([][]*TaskResult, height)
 	for i := range resultIdx {
-		resultIdx[i] = make([]*TaskResult, aa.width)
+		resultIdx[i] = make([]*TaskResult, c.Width)
 	}
 
 	var wg sync.WaitGroup
@@ -28,7 +28,7 @@ func (aa *AnsiArt) processResults(results []TaskResult, height int) {
 	lastFg := "\033[0m" // Reset foreground
 
 	for charY := 0; charY < height; charY++ {
-		for charX := 0; charX < aa.width; charX++ {
+		for charX := 0; charX < c.Width; charX++ {
 			result := resultIdx[charY][charX]
 			if result == nil {
 				sb.WriteString(" ")
@@ -53,7 +53,7 @@ func (aa *AnsiArt) processResults(results []TaskResult, height int) {
 			}
 			sb.WriteString(result.Glyph.UTF8)
 		}
-    
+
 		// Reset colors at the end of each line
 		sb.WriteString("\033[0m\n")
 		lastBg = "\033[0m"
@@ -61,21 +61,21 @@ func (aa *AnsiArt) processResults(results []TaskResult, height int) {
 	}
 
 	// Remove empty newlines at the end
-	aa.resultRaw = sb.String()
-	for strings.HasSuffix(aa.resultRaw, "\n") {
-		aa.resultRaw = aa.resultRaw[:len(aa.resultRaw)-1]
+	c.Result = sb.String()
+	for strings.HasSuffix(c.Result, "\n") {
+		c.Result = c.Result[:len(c.Result)-1]
 	}
 
 	// Generate C string
-	aa.resultC = strings.ReplaceAll(aa.resultRaw, "\033", "\\033")
-	aa.resultC = strings.ReplaceAll(aa.resultC, "\n", "\\n")
-	aa.resultC = strings.ReplaceAll(aa.resultC, "\"", "\\\"")
-	aa.resultC = "char kAnsiArt[] = \"" + aa.resultC + "\""
+	c.ResultC = strings.ReplaceAll(c.Result, "\033", "\\033")
+	c.ResultC = strings.ReplaceAll(c.ResultC, "\n", "\\n")
+	c.ResultC = strings.ReplaceAll(c.ResultC, "\"", "\\\"")
+	c.ResultC = "char kCanvas[] = \"" + c.ResultC + "\""
 
 	// Generate Bash string
-	aa.resultBash = strings.ReplaceAll(aa.resultRaw, "\\", "\\\\")
-	aa.resultBash = strings.ReplaceAll(aa.resultBash, "\033", "\\e")
-	aa.resultBash = strings.ReplaceAll(aa.resultBash, "\n", "\\n")
-	aa.resultBash = strings.ReplaceAll(aa.resultBash, "'", "\\x27")
-	aa.resultBash = "echo -ne '" + aa.resultBash + "'"
+	c.ResultBash = strings.ReplaceAll(c.Result, "\\", "\\\\")
+	c.ResultBash = strings.ReplaceAll(c.ResultBash, "\033", "\\e")
+	c.ResultBash = strings.ReplaceAll(c.ResultBash, "\n", "\\n")
+	c.ResultBash = strings.ReplaceAll(c.ResultBash, "'", "\\x27")
+	c.ResultBash = "echo -ne '" + c.ResultBash + "'"
 }

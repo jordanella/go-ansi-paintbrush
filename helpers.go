@@ -1,6 +1,9 @@
 package paintbrush
 
-import "math"
+import (
+	"fmt"
+	"math"
+)
 
 type Vec4 struct {
 	R, G, B, A float64
@@ -46,4 +49,20 @@ func (v Vec4) ToPixel() Pixel {
 		B: uint8(v.B * 255),
 		A: uint8(v.A * 255),
 	}
+}
+
+type Pixel struct {
+	R, G, B, A uint8
+}
+
+func (p Pixel) AnsiColor() string {
+	return fmt.Sprintf("2;%d;%d;%d", p.R, p.G, p.B)
+}
+
+func (p Pixel) AnsiBg() string {
+	return "\033[48;" + p.AnsiColor() + "m"
+}
+
+func (p Pixel) AnsiFg() string {
+	return "\033[38;" + p.AnsiColor() + "m"
 }
