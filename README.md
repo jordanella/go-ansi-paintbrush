@@ -180,7 +180,7 @@ canvas.SetWeights(weights)
 
 To add new weights or update existing ones without affecting other characters, use the AddWeights method:
 
-```
+```go
 newWeights := map[rune]float64{
     '♥': 0.9,
     '♦': 0.9,
