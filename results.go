@@ -2,6 +2,7 @@ package paintbrush
 
 import (
 	"strings"
+	"sync"
 )
 
 func (aa *AnsiArt) processResults(results []TaskResult, height int) {
@@ -11,10 +12,16 @@ func (aa *AnsiArt) processResults(results []TaskResult, height int) {
 		resultIdx[i] = make([]*TaskResult, aa.width)
 	}
 
+	var wg sync.WaitGroup
 	for i := range results {
-		result := &results[i]
-		resultIdx[result.CharY][result.CharX] = result
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			result := &results[i]
+			resultIdx[result.CharY][result.CharX] = result
+		}(i)
 	}
+	wg.Wait()
 
 	var sb strings.Builder
 	lastBg := "\033[0m" // Reset background
@@ -23,8 +30,8 @@ func (aa *AnsiArt) processResults(results []TaskResult, height int) {
 	for charY := 0; charY < height; charY++ {
 		for charX := 0; charX < aa.width; charX++ {
 			result := resultIdx[charY][charX]
-			if result == nil || result.Glyph == nil {
-				sb.WriteString(lastBg + lastFg + " ")
+			if result == nil {
+				sb.WriteString(" ")
 				continue
 			}
 
@@ -46,6 +53,7 @@ func (aa *AnsiArt) processResults(results []TaskResult, height int) {
 			}
 			sb.WriteString(result.Glyph.UTF8)
 		}
+    
 		// Reset colors at the end of each line
 		sb.WriteString("\033[0m\n")
 		lastBg = "\033[0m"
