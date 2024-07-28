@@ -1,7 +1,5 @@
 # ANSI Paintbrush
 
-A Go fork of the [C++ ANSI Art rendering library](https://github.com/mafik/ansi-art) originally created by [Marek Rogalski](https://github.com/mafik).
-
 ANSI Paintbrush allows you to convert images into colorful ASCII art using ANSI escape codes. It provides a simple interface for loading images, rendering them as ASCII art, and outputting the result in various formats.
 
 ## Example
@@ -21,7 +19,6 @@ ANSI Paintbrush allows you to convert images into colorful ASCII art using ANSI 
 ### Future Plans
 
 I'm always looking to improve ANSI Paintbrush. Some features being considering for future releases include:
-
 - Configurable height constraint
 - Advanced sizing options (stretch, bottleneck, crop, etc.)
 - Command-line argument handling
@@ -70,28 +67,29 @@ Note that it is important to include the appropriate file type support necessary
 import (
     _ "image/png" // PNG support example
 )
-
 ```
 
 ## Canvas Reference
 
 ### Type
+
 The Canvas struct is the core of the ANSI Paintbrush library. It contains all the necessary fields for image processing, rendering, and output generation.
+
 ```go
 type Canvas struct {
-	// Input and Rendering Configuration
-	Font                Font              // Font used for rendering
-	Image               image.Image       // Input image to be processed
-	Width               int               // Output width in characters
-	Height              int               // Output height in characters
-	AspectRatio         float64           // Aspect ratio for output
-	GlyphWidth          int               // Width of each glyph
-	GlyphHeight         int               // Height of each glyph
-	RuneStart           int               // Starting Unicode code point for character selection
-	RuneLimit           int               // Ending Unicode code point for character selection
-	Threads             int               // Number of threads for parallel processing
-	ForbiddenCharacters map[rune]struct{} // Characters to exclude from rendering
-	Weights             map[rune]float64  // Custom weights for character selection
+    // Input and Rendering Configuration
+    Font                Font              // Font used for rendering
+    Image               image.Image       // Input image to be processed
+    Width               int               // Output width in characters
+    Height              int               // Output height in characters
+    AspectRatio         float64           // Aspect ratio for output
+    GlyphWidth          int               // Width of each glyph
+    GlyphHeight         int               // Height of each glyph
+    RuneStart           int               // Starting Unicode code point for character selection
+    RuneLimit           int               // Ending Unicode code point for character selection
+    Threads             int               // Number of threads for parallel processing
+    ForbiddenCharacters map[rune]struct{} // Characters to exclude from rendering
+    Weights             map[rune]float64  // Custom weights for character selection
 
     // Output Results
     Result       string         // Raw output string
@@ -112,50 +110,46 @@ type Canvas struct {
 The ```Canvas``` struct provides the following methods. For detailed documentation on each method, please refer to the inline comments in the source code or visit the GoDoc documentation.
 
 #### Initialization
-```go
-New() *Canvas
-```
+
+- `New() *Canvas`
 
 #### Input and Rendering Configuration
-```go
-LoadFont(path string) error
-SetFont(data []byte) error
-LoadImage(path string) error
-SetImage(img image.Image)
-GetImage() image.Image
-SetWidth(int)
-SetHeight(int)
-SetAspectRatio(float64)
-GetAspectRatio() float64
-SetGlyphDimensions(width, height int)
-GetGlyphDimensions() (width, height int)
-SetRuneLimits(start, end int)
-GetRuneLimits() (start, end int)
-SetThreads(int)
-AddForbiddenCharacter(rune)
-RemoveForbiddenCharacter(rune)
-ClearForbiddenCharacters()
-GetForbiddenCharacters() []rune
-IsForbiddenCharacter(rune) bool
-SetWeights(map[rune]float64)
-AddWeights(map[rune]float64)
-```
+
+- `LoadFont(path string) error`
+- `SetFont(data []byte) error`
+- `LoadImage(path string) error`
+- `SetImage(img image.Image)`
+- `GetImage() image.Image`
+- `SetThreads(int)`
+- `SetWidth(int)`
+- `SetHeight(int)`
+- `AddForbiddenCharacter(rune)`
+- `RemoveForbiddenCharacter(rune)`
+- `ClearForbiddenCharacters()`
+- `GetForbiddenCharacters() []rune`
+- `IsForbiddenCharacter(rune) bool`
+- `SetAspectRatio(float64)`
+- `GetAspectRatio() float64`
+- `SetGlyphDimensions(width, height int)`
+- `GetGlyphDimensions() (width, height int)`
+- `SetRuneLimits(start, end int)`
+- `GetRuneLimits() (start, end int)`
+- `SetWeights(map[rune]float64)`
+- `AddWeights(map[rune]float64)`
 
 #### Rendering Process
-```go
-Paint()
-StartPainting()
-GetProgress() float32
-```
+
+- `Paint()`
+- `StartPainting()`
+- `GetProgress() float32`
 
 #### Output Retrieval
-```go
-GetResult() string
-GetResultC() string
-GetResultBash() string
-GetResultRGBABytes() []byte
-GetResultRGBADimensions() (width, height int)
-```
+
+- `GetResult() string`
+- `GetResultC() string`
+- `GetResultBash() string`
+- `GetResultRGBABytes() []byte`
+- `GetResultRGBADimensions() (width, height int)`
 
 ## Character Weighting and Custom Characters
 
@@ -168,6 +162,7 @@ Note: Characters with weights set to 0 or negative values will be excluded from 
 ### Setting Weights
 
 You can set weights for characters using the `SetWeights` method, which replaces the entire existing weight map:
+
 ```go
 weights := map[rune]float64{
     '█': 0.95,
@@ -182,6 +177,7 @@ canvas.SetWeights(weights)
 ### Adding or Updating Weights
 
 To add new weights or update existing ones without affecting other characters, use the AddWeights method:
+
 ```
 newWeights := map[rune]float64{
     '♥': 0.9,
@@ -201,4 +197,4 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## Acknowledgements
 
-This project is a Go fork of the original [C++ ANSI Art library](https://github.com/mafik/ansi-art) created by Marek Rogalski. I am very grateful for their work, which served as the foundation for this Go implementation.
+This project is a Go fork of the original [C++ ANSI Art library](https://github.com/mafik/ansi-art) created by [Marek Rogalski](https://github.com/mafik). I am very grateful for their work, which served as the foundation for this Go implementation.
