@@ -1,8 +1,8 @@
 package paintbrush
 
 import (
-	"fmt"
 	"strings"
+	"sync"
 )
 
 func (aa *AnsiArt) processResults(results []TaskResult, height int) {
@@ -12,21 +12,25 @@ func (aa *AnsiArt) processResults(results []TaskResult, height int) {
 		resultIdx[i] = make([]*TaskResult, aa.width)
 	}
 
+	var wg sync.WaitGroup
 	for i := range results {
-		result := &results[i]
-		resultIdx[result.CharY][result.CharX] = result
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			result := &results[i]
+			resultIdx[result.CharY][result.CharX] = result
+		}(i)
 	}
+	wg.Wait()
 
 	var sb strings.Builder
 	lastBg := "\033[0m" // Reset background
 	lastFg := "\033[0m" // Reset foreground
 
-	var result *TaskResult
 	for charY := 0; charY < height; charY++ {
 		for charX := 0; charX < aa.width; charX++ {
-			result = resultIdx[charY][charX]
-			if result == nil || result.Glyph == nil {
-				fmt.Println("") // TODO: Correct this workaround.
+			result := resultIdx[charY][charX]
+			if result == nil {
 				sb.WriteString(" ")
 				continue
 			}
@@ -48,10 +52,6 @@ func (aa *AnsiArt) processResults(results []TaskResult, height int) {
 				lastFg = newFg
 			}
 			sb.WriteString(result.Glyph.UTF8)
-		}
-
-		if lastFg == "\033[0m" {
-			sb.WriteString(result.Glyph.UTF8) // TODO: Correct this workaround.
 		}
 
 		// Reset colors at the end of each line
