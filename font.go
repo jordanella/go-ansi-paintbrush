@@ -9,6 +9,9 @@ import (
 	"golang.org/x/image/math/fixed"
 )
 
+var FiraMonoRegular = "assets/FiraMono-Regular.ttf"
+var FiraMonoBold = "assets/FiraMono-Bold.ttf"
+
 type Font struct {
 	GlyphHeight int
 	GlyphWidth  int
@@ -22,7 +25,7 @@ type Glyph struct {
 	Pixels  []uint8
 }
 
-func (aa *AnsiArt) LoadTTF(data []byte) error {
+func (aa *AnsiArt) SetFont(data []byte) error {
 	f, err := truetype.Parse(data)
 	if err != nil {
 		return err

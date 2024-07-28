@@ -24,16 +24,14 @@ ANSI Paintbrush allows you to convert images into colorful ASCII art using ANSI 
 go get github.com/jordanella/go-ansi-paintbrush
 ```
 
-## Basic Usage
+## Quickstart
 
 ```
 package main
 
 import (
     "fmt"
-    "image"
-    "os"
-    "time"
+	_ "image/png"
 
     "github.com/jordanella/go-ansi-paintbrush"
 )
@@ -42,31 +40,30 @@ func main() {
     // Create a new AnsiArt instance
     aa := paintbrush.New()
 
-    // Load a TTF font
-    fontData, _ := os.ReadFile("path/to/your/font.ttf")
-    aa.LoadTTF(fontData)
-
     // Load an image
-    file, _ := os.Open("path/to/your/image.png")
-    img, _, _ := image.Decode(file)
-    aa.LoadImage(img)
+    err := aa.LoadImage("examples/norman.png")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
-    // Set the desired width of the output
-    aa.SetWidth(150)
-
-    // Start the rendering process (with 10 threads)
-    aa.StartRender(10)
-
-    // Wait for rendering to complete
-    for aa.GetRenderProgress() < 1.0 {
-        fmt.Printf("Rendering progress: %.2f%%\r", aa.GetRenderProgress()*100)
-        time.Sleep(100 * time.Millisecond)
-    }
+	// Start the rendering process
+	aa.Render()
 
     // Print the result
     fmt.Printf("\r%s", aa.GetResultRaw())
 }
 ```
+
+Note that it is important to include the appropriate file type support necessary for your project.
+
+```
+import (
+    _ "image/png" // PNG support example
+)
+
+```
+
 
 ## Planned Features
 
@@ -79,10 +76,13 @@ func main() {
 
 ```
 type AnsiArtInterface interface {
-    LoadTTF(data []byte) error
-    LoadImage(img image.Image)
+    LoadFont(path string) error
+    SetFont(data []byte) error
+    LoadImage(path string) error
+    SetImage(img image.Image)
     Render()
-    StartRender(nThreads int)
+    SetThreads(int)
+    StartRender()
     GetRenderProgress() float32
     GetResultRaw() string
     GetResultC() string

@@ -53,7 +53,7 @@ func (aa *AnsiArt) processResults(results []TaskResult, height int) {
 			}
 			sb.WriteString(result.Glyph.UTF8)
 		}
-
+    
 		// Reset colors at the end of each line
 		sb.WriteString("\033[0m\n")
 		lastBg = "\033[0m"
@@ -62,7 +62,7 @@ func (aa *AnsiArt) processResults(results []TaskResult, height int) {
 
 	// Remove empty newlines at the end
 	aa.resultRaw = sb.String()
-	for strings.HasSuffix(aa.resultRaw, "\n\n") {
+	for strings.HasSuffix(aa.resultRaw, "\n") {
 		aa.resultRaw = aa.resultRaw[:len(aa.resultRaw)-1]
 	}
 
