@@ -24,13 +24,15 @@ I'm always looking to improve ANSI Paintbrush. Some features being considering f
 - Command-line argument handling
 - Rendering the result to file
 
-## Installation
+## Usage
+
+### Installation
 
 ```bash
 go get github.com/jordanella/go-ansi-paintbrush
 ```
 
-## Quickstart
+### Quickstart
 
 ```go
 package main
@@ -151,7 +153,7 @@ The ```Canvas``` struct provides the following methods. For detailed documentati
 - `GetResultRGBABytes() []byte`
 - `GetResultRGBADimensions() (width, height int)`
 
-## Character Weighting and Custom Characters
+## Character Weighting and Extended Characters
 
 The ANSI Paintbrush library allows you to customize the character selection process through a weighting system. Weightings can be leveraged to emphasize certain characters over others or to add entirely new characters to the rendering process. This flexibility allows you to fine-tune the output to achieve the desired aesthetic for your images.
 
